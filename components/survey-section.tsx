@@ -13,10 +13,18 @@ import {
   ChevronRight,
   ClipboardCheck,
 } from "lucide-react";
+import { updateSurveyStatus } from "@/lib/email-service";
 
 interface SurveySectionProps {
   email: string;
-  onComplete?: () => void;
+  onComplete?: (surveyData: SurveyData) => void;
+}
+
+interface SurveyData {
+  age: string;
+  findMethod: string;
+  frustration: string;
+  payForSchedule: string;
 }
 
 export function SurveySection({ email, onComplete }: SurveySectionProps) {
@@ -50,13 +58,21 @@ export function SurveySection({ email, onComplete }: SurveySectionProps) {
     setCurrentStep((prev) => prev - 1);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real app, you would send this data to your backend
-    console.log("Survey submitted:", formData);
-    setSubmitted(true);
-    if (onComplete) {
-      onComplete();
+    
+    try {
+      const result = await updateSurveyStatus(email, formData);
+      if (result.success) {
+        setSubmitted(true);
+        if (onComplete) {
+          onComplete(formData as SurveyData);
+        }
+      } else {
+
+      }
+    } catch (error) {
+      
     }
   };
 

@@ -8,9 +8,16 @@ import { Input } from "@/components/ui/input"
 import { ArrowRight, MapPin, ArrowLeft, CheckCircle, Home, Search, Calendar, Check, Sun } from "lucide-react"
 import { SurveySection } from "@/components/survey-section"
 
+interface SurveyData {
+  age: string;
+  findMethod: string;
+  frustration: string;
+  payForSchedule: string;
+}
+
 interface HeroSectionProps {
-  onEmailSubmit: (email: string) => void
-  onSurveyComplete?: () => void
+  onEmailSubmit: (email: string) => Promise<{ success: boolean; message?: string }>;
+  onSurveyComplete: (surveyData: SurveyData) => void;
 }
 
 export function HeroSection({ onEmailSubmit, onSurveyComplete }: HeroSectionProps) {
@@ -39,7 +46,7 @@ export function HeroSection({ onEmailSubmit, onSurveyComplete }: HeroSectionProp
     return () => window.removeEventListener("scroll", handleScroll)
   }, [])
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
 
     // Simple email validation
@@ -49,22 +56,21 @@ export function HeroSection({ onEmailSubmit, onSurveyComplete }: HeroSectionProp
     }
 
     setError("")
-    onEmailSubmit(email)
-    setShowSurvey(true)
-  }
-
-  const handleSurveyComplete = () => {
-    setSurveyCompleted(true)
-  }
-
-  const handleReturnHome = () => {
-    setShowSurvey(false)
-    setSurveyCompleted(false)
-    setEmail("")
-    setError("")
-    if (onSurveyComplete) {
-      onSurveyComplete()
+    const result = await onEmailSubmit(email)
+    if (result.success) {
+      setShowSurvey(true)
+    } else if (result.message === 'Email already exists') {
+      setError("You've already signed up! Check your email for updates.")
+      setShowSurvey(false)
+    } else {
+      setError("Something went wrong. Please try again.")
+      setShowSurvey(false)
     }
+  }
+
+  const handleSurveyComplete = (surveyData: SurveyData) => {
+    setSurveyCompleted(true)
+    onSurveyComplete(surveyData)
   }
 
   const steps = [
@@ -195,7 +201,7 @@ export function HeroSection({ onEmailSubmit, onSurveyComplete }: HeroSectionProp
                     </span>
                   </Button>
                   <p className="text-md md:text-lg text-white/70 text-center mt-2 whitespace-nowrap">
-                    We won't spam. Ma kasam.
+                    We won't spam. Promise.
                   </p>
                 </form>
               </div>
@@ -238,7 +244,11 @@ export function HeroSection({ onEmailSubmit, onSurveyComplete }: HeroSectionProp
                     Your feedback is incredibly valuable.
                   </p>
                   <Button
-                    onClick={handleReturnHome}
+                    onClick={() => {
+                      setShowSurvey(false)
+                      setSurveyCompleted(false)
+                      setEmail("")
+                    }}
                     className="rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-medium shadow-lg shadow-purple-500/20 hover:shadow-purple-500/40 transition-all duration-300 relative overflow-hidden group"
                   >
                     <span className="absolute inset-0 w-full h-full bg-gradient-to-r from-purple-600 to-pink-600 group-hover:scale-105 transition-transform duration-500"></span>
@@ -250,7 +260,10 @@ export function HeroSection({ onEmailSubmit, onSurveyComplete }: HeroSectionProp
                   </Button>
                 </div>
               ) : (
-                <SurveySection email={email} onComplete={handleSurveyComplete} />
+                <SurveySection 
+                  email={email} 
+                  onComplete={handleSurveyComplete} 
+                />
               )}
             </div>
           )}

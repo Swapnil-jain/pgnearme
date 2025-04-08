@@ -31,8 +31,8 @@ export function Header() {
               src="/logo.png"
               alt="PGNear.me Logo"
               width={36}
-              height={10}
-              className="object-contain"
+              height={36}
+              className="w-9 h-auto object-contain"
               priority
             />
           </div>

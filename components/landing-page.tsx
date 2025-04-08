@@ -7,6 +7,7 @@ import { BenefitsSection } from "./benefits-section"
 import { Footer } from "./footer"
 import { Header } from "./header"
 import { DecorativeShapes } from "./decorative-shapes"
+import { saveEmail, updateSurveyStatus } from '@/lib/email-service'
 
 export default function LandingPage() {
   const [showSurvey, setShowSurvey] = useState(false)
@@ -17,12 +18,17 @@ export default function LandingPage() {
     setMounted(true)
   }, [])
 
-  const handleEmailSubmit = (submittedEmail: string) => {
-    setEmail(submittedEmail)
-    setShowSurvey(true)
+  const handleEmailSubmit = async (submittedEmail: string) => {
+    const result = await saveEmail(submittedEmail)
+    if (result.success) {
+      setEmail(submittedEmail)
+      setShowSurvey(true)
+    }
+    return result
   }
 
-  const handleSurveyComplete = () => {
+  const handleSurveyComplete = async (surveyData: any) => {
+    await updateSurveyStatus(email, surveyData)
     setShowSurvey(false)
     setEmail("")
   }
