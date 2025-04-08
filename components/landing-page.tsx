@@ -9,17 +9,57 @@ import { Header } from "./header"
 import { DecorativeShapes } from "./decorative-shapes"
 import { saveEmail, updateSurveyStatus } from '@/lib/email-service'
 
+// Rate limiting configuration
+const RATE_LIMIT = {
+  maxAttempts: 3,
+  timeWindow: 60 * 60 * 1000, // 1 hour in milliseconds
+}
+
 export default function LandingPage() {
   const [showSurvey, setShowSurvey] = useState(false)
   const [email, setEmail] = useState("")
   const [mounted, setMounted] = useState(false)
+  const [submissionAttempts, setSubmissionAttempts] = useState<{ [key: string]: number }>({})
+  const [lastSubmissionTime, setLastSubmissionTime] = useState<{ [key: string]: number }>({})
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
+  const isRateLimited = (email: string) => {
+    const now = Date.now()
+    const lastAttempt = lastSubmissionTime[email] || 0
+    const attempts = submissionAttempts[email] || 0
+
+    if (now - lastAttempt > RATE_LIMIT.timeWindow) {
+      // Reset if time window has passed
+      setSubmissionAttempts(prev => ({ ...prev, [email]: 0 }))
+      return false
+    }
+
+    return attempts >= RATE_LIMIT.maxAttempts
+  }
+
   const handleEmailSubmit = async (submittedEmail: string) => {
+    if (isRateLimited(submittedEmail)) {
+      return {
+        success: false,
+        message: "Too many attempts. Please try again later."
+      }
+    }
+
     const result = await saveEmail(submittedEmail)
+    
+    // Update rate limiting counters
+    setSubmissionAttempts(prev => ({
+      ...prev,
+      [submittedEmail]: (prev[submittedEmail] || 0) + 1
+    }))
+    setLastSubmissionTime(prev => ({
+      ...prev,
+      [submittedEmail]: Date.now()
+    }))
+
     if (result.success) {
       setEmail(submittedEmail)
       setShowSurvey(true)
@@ -28,9 +68,19 @@ export default function LandingPage() {
   }
 
   const handleSurveyComplete = async (surveyData: any) => {
-    await updateSurveyStatus(email, surveyData)
-    setShowSurvey(false)
-    setEmail("")
+    if (isRateLimited(email)) {
+      return {
+        success: false,
+        message: "Too many attempts. Please try again later."
+      }
+    }
+
+    const result = await updateSurveyStatus(email, surveyData)
+    if (result.success) {
+      setShowSurvey(false)
+      setEmail("")
+    }
+    return result
   }
 
   if (!mounted) return null

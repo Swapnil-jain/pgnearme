@@ -14,6 +14,19 @@ import {
   ClipboardCheck,
 } from "lucide-react";
 import { updateSurveyStatus } from "@/lib/email-service";
+import { z } from "zod";
+
+// Validation schema for survey responses
+const surveySchema = z.object({
+  age: z.string().min(1, "Please select your age"),
+  findMethod: z.string().min(1, "Please select how you found your last PG"),
+  frustration: z.string()
+    .min(1, "Please share your experience")
+    .max(500, "Response must be less than 500 characters")
+    .transform(str => str.trim()),
+  payForSchedule: z.string().min(1, "Please select an option"),
+  payForVerification: z.string().optional()
+});
 
 interface SurveySectionProps {
   email: string;
@@ -25,18 +38,19 @@ interface SurveyData {
   findMethod: string;
   frustration: string;
   payForSchedule: string;
+  payForVerification?: string;
 }
 
 export function SurveySection({ email, onComplete }: SurveySectionProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [submitted, setSubmitted] = useState(false);
-  const [formData, setFormData] = useState({
-    reason: "",
-    frustration: "",
+  const [validationErrors, setValidationErrors] = useState<{ [key: string]: string }>({});
+  const [formData, setFormData] = useState<SurveyData>({
+    age: "",
     findMethod: "",
+    frustration: "",
     payForSchedule: "",
     payForVerification: "",
-    age: "",
   });
 
   const handleInputChange = (
@@ -44,14 +58,39 @@ export function SurveySection({ email, onComplete }: SurveySectionProps) {
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear validation error when user starts typing
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({ ...prev, [name]: "" }));
+    }
   };
 
   const handleRadioChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
+    // Clear validation error when user selects an option
+    if (validationErrors[name]) {
+      setValidationErrors(prev => ({ ...prev, [name]: "" }));
+    }
+  };
+
+  const validateCurrentStep = () => {
+    const currentQuestion = questions[currentStep];
+    const value = formData[currentQuestion.name as keyof SurveyData];
+    
+    if (!value || value.trim() === "") {
+      setValidationErrors(prev => ({
+        ...prev,
+        [currentQuestion.name]: "This field is required"
+      }));
+      return false;
+    }
+    
+    return true;
   };
 
   const handleNext = () => {
-    setCurrentStep((prev) => prev + 1);
+    if (validateCurrentStep()) {
+      setCurrentStep((prev) => prev + 1);
+    }
   };
 
   const handlePrevious = () => {
@@ -62,17 +101,36 @@ export function SurveySection({ email, onComplete }: SurveySectionProps) {
     e.preventDefault();
     
     try {
-      const result = await updateSurveyStatus(email, formData);
+      // Validate all form data
+      const validatedData = surveySchema.parse(formData);
+      
+      const result = await updateSurveyStatus(email, validatedData);
       if (result.success) {
         setSubmitted(true);
         if (onComplete) {
-          onComplete(formData as SurveyData);
+          onComplete(validatedData);
         }
       } else {
-
+        setValidationErrors(prev => ({
+          ...prev,
+          submit: result.message || "Failed to submit survey. Please try again."
+        }));
       }
     } catch (error) {
-      
+      if (error instanceof z.ZodError) {
+        const errors: { [key: string]: string } = {};
+        error.errors.forEach(err => {
+          if (err.path[0]) {
+            errors[err.path[0]] = err.message;
+          }
+        });
+        setValidationErrors(errors);
+      } else {
+        setValidationErrors(prev => ({
+          ...prev,
+          submit: "An unexpected error occurred. Please try again."
+        }));
+      }
     }
   };
 

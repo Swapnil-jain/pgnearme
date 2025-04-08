@@ -7,6 +7,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ArrowRight, MapPin, ArrowLeft, CheckCircle, Home, Search, Calendar, Check, Sun } from "lucide-react"
 import { SurveySection } from "@/components/survey-section"
+import { z } from "zod"
+
+// Email validation schema
+const emailSchema = z.string().email("Please enter a valid email address")
 
 interface SurveyData {
   age: string;
@@ -26,6 +30,7 @@ export function HeroSection({ onEmailSubmit, onSurveyComplete }: HeroSectionProp
   const [scrolled, setScrolled] = useState(false)
   const [showSurvey, setShowSurvey] = useState(false)
   const [surveyCompleted, setSurveyCompleted] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const formRef = useRef<HTMLDivElement>(null)
   const [activeStep, setActiveStep] = useState(0)
 
@@ -48,23 +53,29 @@ export function HeroSection({ onEmailSubmit, onSurveyComplete }: HeroSectionProp
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    // Simple email validation
-    if (!email || !/^\S+@\S+\.\S+$/.test(email)) {
-      setError("Please enter a valid email address")
-      return
-    }
-
+    setIsSubmitting(true)
     setError("")
-    const result = await onEmailSubmit(email)
-    if (result.success) {
-      setShowSurvey(true)
-    } else if (result.message === 'Email already exists') {
-      setError("You've already signed up! Check your email for updates.")
+
+    try {
+      // Validate email
+      const validatedEmail = emailSchema.parse(email)
+      
+      const result = await onEmailSubmit(validatedEmail)
+      if (result.success) {
+        setShowSurvey(true)
+      } else {
+        setError(result.message || "Something went wrong. Please try again.")
+        setShowSurvey(false)
+      }
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setError(error.errors[0].message)
+      } else {
+        setError("An unexpected error occurred. Please try again.")
+      }
       setShowSurvey(false)
-    } else {
-      setError("Something went wrong. Please try again.")
-      setShowSurvey(false)
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
