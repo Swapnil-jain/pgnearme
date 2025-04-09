@@ -17,6 +17,7 @@ interface SurveyData {
   findMethod: string;
   frustration: string;
   payForSchedule: string;
+  feedback: string;
 }
 
 interface HeroSectionProps {
@@ -88,13 +89,13 @@ export function HeroSection({ onEmailSubmit, onSurveyComplete }: HeroSectionProp
     {
       icon: <Search className="h-8 w-8" />,
       title: "Find",
-      description: "Browse verified PGs with real photos and reviews",
+      description: "Browse verified PGs with real photos, amenities and reviews",
       color: "from-purple-500 to-pink-500",
     },
     {
       icon: <Calendar className="h-8 w-8" />,
       title: "Schedule",
-      description: "Book visits directly with owners, no middlemen",
+      description: "Book visits directly with owners with availability. Save your auto bills",
       color: "from-pink-500 to-purple-500",
     },
     {
@@ -113,27 +114,38 @@ export function HeroSection({ onEmailSubmit, onSurveyComplete }: HeroSectionProp
 
       {/* Animated figures */}
       <div className="absolute inset-0 overflow-hidden">
-        {/* Floating house */}
-        <div className="absolute top-1/4 left-1/4 w-16 h-16 animate-float-slow">
+        {/* Floating house - Mobile: top-left, Desktop: top-1/4 left-1/4 */}
+        <div className="absolute top-[14%] left-[5%] md:top-[10%] md:left-[10%] w-10 h-10 md:w-16 md:h-16 animate-float-slow">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-lg blur-xl"></div>
-            <Home className="h-16 w-16 text-white/30" />
+            <Home className="h-10 w-10 md:h-16 md:w-16 text-white/30" />
           </div>
         </div>
-        {/* Floating checkmark */}
-        <div className="absolute top-1/3 right-1/4 w-12 h-12 animate-float-slow" style={{ animationDelay: "1s" }}>
+
+        {/* Floating location pin - Mobile: bottom-right, Desktop: middle-right */}
+        <div className="absolute top-8 right-4 md:top-1/3 md:right-[10%] w-12 h-12 animate-float-slow" style={{ animationDelay: "1s" }}>
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-500/20 to-pink-500/20 rounded-full blur-xl"></div>
+            <MapPin className="h-9 w-9 md:h-16 md:w-16 text-white/40" />
+          </div>
+        </div>
+
+        {/* Floating calendar - Mobile: bottom-left, Desktop: bottom-1/4 left-1/3 */}
+        <div className="absolute bottom-[10%] left-[10%] md:bottom-[20%] md:left-[20%] w-14 h-14 animate-float-slow" style={{ animationDelay: "2s" }}>
+          <div className="relative">
+            <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-lg blur-xl"></div>
+            <Calendar className="h-10 w-10 md:h-14 md:w-14 text-white/30" />
+          </div>
+        </div>
+
+        {/* Floating checkmark - Mobile: top-right, Desktop: top-1/3 right-1/4 */}
+        <div className="absolute bottom-[2%] right-[10%] md:bottom-[5%] md:right-[20%] w-16 h-16 md:w-20 md:h-20 animate-float-slow" style={{ animationDelay: "1.5s" }}>
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-br from-pink-400/20 to-purple-400/20 rounded-full blur-xl"></div>
-            <Check className="h-12 w-12 text-white/30" />
+            <Check className="h-10 w-10 md:h-14 md:w-14 text-white/30" />
           </div>
         </div>
-        {/* Floating calendar */}
-        <div className="absolute bottom-1/4 left-1/3 w-14 h-14 animate-float-slow" style={{ animationDelay: "2s" }}>
-          <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-lg blur-xl"></div>
-            <Calendar className="h-14 w-14 text-white/30" />
-          </div>
-        </div>
+
       </div>
 
       {/* Main content */}

@@ -11,9 +11,9 @@ const emailSchema = z.string().email()
 const surveyResponseSchema = z.object({
   age: z.string(),
   findMethod: z.string(),
-  frustration: z.string().max(500),
+  frustration: z.string(),
   payForSchedule: z.string(),
-  payForVerification: z.string().optional()
+  feedback: z.string().max(500)
 })
 
 export async function saveEmail(email: string) {

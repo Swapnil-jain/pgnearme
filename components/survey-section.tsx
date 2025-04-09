@@ -20,12 +20,12 @@ import { z } from "zod";
 const surveySchema = z.object({
   age: z.string().min(1, "Please select your age"),
   findMethod: z.string().min(1, "Please select how you found your last PG"),
-  frustration: z.string()
-    .min(1, "Please share your experience")
-    .max(500, "Response must be less than 500 characters")
-    .transform(str => str.trim()),
+  frustration: z.string().min(1, "Please select your greatest frustation"),
   payForSchedule: z.string().min(1, "Please select an option"),
-  payForVerification: z.string().optional()
+  feedback: z.string()
+  .min(1, "Please share your opinion")
+  .max(500, "Response must be less than 500 characters")
+  .transform(str => str.trim()),
 });
 
 interface SurveySectionProps {
@@ -38,7 +38,7 @@ interface SurveyData {
   findMethod: string;
   frustration: string;
   payForSchedule: string;
-  payForVerification?: string;
+  feedback: string;
 }
 
 export function SurveySection({ email, onComplete }: SurveySectionProps) {
@@ -50,7 +50,7 @@ export function SurveySection({ email, onComplete }: SurveySectionProps) {
     findMethod: "",
     frustration: "",
     payForSchedule: "",
-    payForVerification: "",
+    feedback: "",
   });
 
   const handleInputChange = (
@@ -156,7 +156,14 @@ export function SurveySection({ email, onComplete }: SurveySectionProps) {
     {
       title: "What has been the most frustrating part of finding a PG?",
       name: "frustration",
-      type: "text",
+      type: "radio",
+      options: [
+        "Scattered PG listings across different apps/websites",
+        "Unavailability of Reviews/Fake Reviews",
+        "Unavailability of Photos/Fake Photos",
+        "Hunting in the hot sun & high cab/auto bills",
+        "Lack of online information on amenities, food etc",
+      ],
     },
     {
       title:
@@ -164,6 +171,11 @@ export function SurveySection({ email, onComplete }: SurveySectionProps) {
       name: "payForSchedule",
       type: "radio",
       options: ["Yes", "Maybe", "No"],
+    },
+    {
+      title: "Anything you would like us to look into? (Open feedback)",
+      name: "feedback",
+      type: "text",
     },
   ];
 

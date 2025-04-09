@@ -10,10 +10,22 @@ export function ProblemSection() {
 
   const problems = useMemo(() => [
     {
+      icon: <List className="h-8 w-8" />,
+      title: "No consolidated list",
+      description: "No single trustworthy source of PG information online",
+      color: "from-pink-500 to-fuchsia-600",
+      details: [
+        "Scattered information across multiple platforms",
+        "No standardized format for PG listings",
+        "Difficulty in comparing different PGs",
+        "No information on food, desposit, amenities"
+      ],
+    },
+    {
       icon: <Camera className="h-8 w-8" />,
       title: "Outdated or fake photos",
       description: "Listings on Google Maps or other platforms often show misleading images",
-      color: "from-purple-500 to-indigo-600",
+      color: "from-indigo-500 to-purple-600",
       details: [
         "Photos from years ago that don't reflect current conditions",
         "Stock images used instead of actual PG photos",
@@ -43,17 +55,6 @@ export function ProblemSection() {
       ],
     },
     {
-      icon: <Phone className="h-8 w-8" />,
-      title: "Endless phone calls",
-      description: "Constant calls and messages with brokers who often ghost you",
-      color: "from-pink-500 to-fuchsia-600",
-      details: [
-        "Brokers not responding after initial contact",
-        "Multiple brokers for the same property",
-        "No direct communication with PG owners",
-      ],
-    },
-    {
       icon: <Sun className="h-8 w-8" />,
       title: "Wasted visits",
       description: "Physically visiting PGs in the hot sun just to check basic details",
@@ -62,17 +63,7 @@ export function ProblemSection() {
         "Traveling long distances for unsuitable PGs",
         "No virtual tours or detailed information online",
         "Time wasted on properties that don't match requirements",
-      ],
-    },
-    {
-      icon: <List className="h-8 w-8" />,
-      title: "No consolidated list",
-      description: "No single trustworthy source of PG information online",
-      color: "from-indigo-500 to-purple-600",
-      details: [
-        "Scattered information across multiple platforms",
-        "No standardized format for PG listings",
-        "Difficulty in comparing different PGs",
+        "Money wasted on cab/auto bills"
       ],
     },
   ], [])
