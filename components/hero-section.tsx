@@ -95,13 +95,13 @@ export function HeroSection({ onEmailSubmit, onSurveyComplete }: HeroSectionProp
     {
       icon: <Calendar className="h-8 w-8" />,
       title: "Schedule",
-      description: "Ever wasted Rs.500 to travel, just to find missing PG owner ?",
+      description: "Ever wasted Rs.500 to travel, just to find missing PG owner?",
       color: "from-pink-500 to-purple-500",
     },
     {
       icon: <Sun className="h-8 w-8" />,
       title: "Save Time",
-      description: "Ever visited dozens of PGs in the hot weather, only to find disappointment ?",
+      description: "Ever visited dozens of PGs in the hot weather, only to find disappointment?",
       color: "from-purple-600 to-pink-600",
     },
   ]
