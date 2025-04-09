@@ -39,7 +39,7 @@ export default function RootLayout({
     <html lang="en">
       <body>{children}
       <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=G-YYM8HD7RGW`}
+            src={`https://www.googletagmanager.com/gtag/js?id=G-RZ3M41NW07`}
             async
         />
         <Script id="google-analytics">
@@ -47,7 +47,7 @@ export default function RootLayout({
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
-            gtag('config', 'G-YYM8HD7RGW', {
+            gtag('config', 'G-RZ3M41NW07', {
               page_path: window.location.pathname,
               transport_type: 'beacon'
             });
