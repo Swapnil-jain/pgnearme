@@ -95,7 +95,7 @@ export function HeroSection({ onEmailSubmit, onSurveyComplete }: HeroSectionProp
     {
       icon: <Calendar className="h-8 w-8" />,
       title: "Schedule",
-      description: "Book visits directly with owners with availability. Save your auto bills",
+      description: "Ever wasted Rs.500 to travel, just to find missing PG owner ?",
       color: "from-pink-500 to-purple-500",
     },
     {
