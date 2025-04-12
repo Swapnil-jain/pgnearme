@@ -13,7 +13,6 @@ import {
   ChevronRight,
   ClipboardCheck,
 } from "lucide-react";
-import { updateSurveyStatus } from "@/lib/email-service";
 import { z } from "zod";
 
 // Validation schema for survey responses
@@ -104,7 +103,20 @@ export function SurveySection({ email, onComplete }: SurveySectionProps) {
       // Validate all form data
       const validatedData = surveySchema.parse(formData);
       
-      const result = await updateSurveyStatus(email, validatedData);
+      // Submit the survey data via the API
+      const response = await fetch('/api/email/survey', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          email: email,
+          surveyData: validatedData
+        }),
+      });
+      
+      const result = await response.json();
+      
       if (result.success) {
         setSubmitted(true);
         if (onComplete) {
@@ -113,7 +125,7 @@ export function SurveySection({ email, onComplete }: SurveySectionProps) {
       } else {
         setValidationErrors(prev => ({
           ...prev,
-          submit: result.message || "Failed to submit survey. Please try again."
+          submit: result.error || "Failed to submit survey. Please try again."
         }));
       }
     } catch (error) {

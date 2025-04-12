@@ -16,8 +16,73 @@ const surveyResponseSchema = z.object({
   feedback: z.string().max(500)
 })
 
-export async function saveEmail(email: string) {
+// Simple in-memory rate limiting (server-side)
+const ipRateLimits = new Map<string, {count: number, timestamp: number}>();
+const emailRateLimits = new Map<string, {count: number, timestamp: number}>();
+
+// Check IP rate limit (3 per day)
+function checkIpRateLimit(ip: string): boolean {
+  const now = Date.now();
+  const limit = ipRateLimits.get(ip);
+  
+  if (!limit) {
+    ipRateLimits.set(ip, { count: 1, timestamp: now });
+    return true;
+  }
+  
+  // Reset if 24 hours have passed
+  if (now - limit.timestamp > 24 * 60 * 60 * 1000) {
+    ipRateLimits.set(ip, { count: 1, timestamp: now });
+    return true;
+  }
+  
+  // Block if over 3 requests per day from same IP
+  if (limit.count >= 3) {
+    return false;
+  }
+  
+  // Increment counter
+  ipRateLimits.set(ip, { count: limit.count + 1, timestamp: limit.timestamp });
+  return true;
+}
+
+// Check email rate limit (5 per hour)
+function checkEmailRateLimit(email: string): boolean {
+  const now = Date.now();
+  const limit = emailRateLimits.get(email);
+  
+  if (!limit) {
+    emailRateLimits.set(email, { count: 1, timestamp: now });
+    return true;
+  }
+  
+  // Reset if 1 hour has passed
+  if (now - limit.timestamp > 60 * 60 * 1000) {
+    emailRateLimits.set(email, { count: 1, timestamp: now });
+    return true;
+  }
+  
+  // Block if over 5 requests per hour for same email
+  if (limit.count >= 5) {
+    return false;
+  }
+  
+  // Increment counter
+  emailRateLimits.set(email, { count: limit.count + 1, timestamp: limit.timestamp });
+  return true;
+}
+
+export async function saveEmail(email: string, ip: string = 'unknown') {
   try {
+    // Check rate limits
+    if (!checkIpRateLimit(ip)) {
+      return { success: false, message: 'Too many attempts from your location. Please try again later.' };
+    }
+    
+    if (!checkEmailRateLimit(email)) {
+      return { success: false, message: 'Too many attempts with this email. Please try again later.' };
+    }
+    
     // Validate email
     const validatedEmail = emailSchema.parse(email)
     
@@ -44,8 +109,17 @@ export async function saveEmail(email: string) {
   }
 }
 
-export async function updateSurveyStatus(email: string, surveyResponses: any) {
+export async function updateSurveyStatus(email: string, surveyResponses: any, ip: string = 'unknown') {
   try {
+    // Check rate limits
+    if (!checkIpRateLimit(ip)) {
+      return { success: false, message: 'Too many attempts from your location. Please try again later.' };
+    }
+    
+    if (!checkEmailRateLimit(email)) {
+      return { success: false, message: 'Too many attempts with this email. Please try again later.' };
+    }
+    
     // Validate email and survey responses
     const validatedEmail = emailSchema.parse(email)
     const validatedResponses = surveyResponseSchema.parse(surveyResponses)
