@@ -1,4 +1,4 @@
-import { X, Menu, HelpCircle, Award } from "lucide-react"
+import { X, Menu, HelpCircle, Award, BarChart3 } from "lucide-react"
 import Link from "next/link"
 import Image from "next/image"
 import { useState } from "react"
@@ -44,6 +44,15 @@ export function Header() {
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
           <a
+            href="#results"
+            onClick={(e) => handleScroll(e, "results")}
+            className="text-gray-700 hover:text-[#7C3AED] transition-colors flex items-center space-x-1.5 group font-medium"
+            style={{ fontFamily: 'Inter, -apple-system, sans-serif' }}
+          >
+            <BarChart3 className="h-4 w-4 text-[#7C3AED] group-hover:text-[#6D28D9] transition-colors" />
+            <span>Survey Results</span>
+          </a>
+          <a
             href="#problem"
             onClick={(e) => handleScroll(e, "problem")}
             className="text-gray-700 hover:text-[#7C3AED] transition-colors flex items-center space-x-1.5 group font-medium"
@@ -75,6 +84,15 @@ export function Header() {
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-full left-0 right-0 bg-white/95 backdrop-blur-md shadow-lg border-t border-purple-100/50 py-4">
           <nav className="flex flex-col items-center space-y-4">
+            <a
+              href="#results"
+              onClick={(e) => handleScroll(e, "results")}
+              className="text-gray-700 hover:text-[#7C3AED] transition-colors flex items-center space-x-1.5 group text-lg font-medium"
+              style={{ fontFamily: 'Inter, -apple-system, sans-serif' }}
+            >
+              <BarChart3 className="h-5 w-5 text-[#7C3AED] group-hover:text-[#6D28D9] transition-colors" />
+              <span>Survey Results</span>
+            </a>
             <a
               href="#problem"
               onClick={(e) => handleScroll(e, "problem")}

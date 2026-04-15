@@ -8,7 +8,7 @@ export const metadata: Metadata = {
     default: "PGNear.me",
     template: "%s | PGNear.me",
   },
-  description: 'Find PG accommodations near you',
+  description: 'PGNear.me — Survey findings from 725 people on the PG hunting experience in India.',
   icons: {
     icon: [
       {
